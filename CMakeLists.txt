@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(uWebSockets)
 
+find_package(Threads REQUIRED)
+
 add_library(uWS
   src/Extensions.cpp
   src/Group.cpp
@@ -31,8 +33,16 @@ set(HEADERS
 )
 
 target_include_directories(uWS
-  INTERFACE
-    "${CMAKE_CURRENT_SOURCE_DIR}/uWS"
+  PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
+target_link_libraries(uWS
+  PUBLIC
+    z
+    ssl
+    crypto
+    Threads::Threads
 )
 
 set_target_properties(uWS
