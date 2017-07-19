@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(uWebSockets)
 
+enable_testing()
+
+# Dependencies
+find_package(Threads REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+# Define the uWS target
 add_library(uWS
   src/Extensions.cpp
   src/Group.cpp
@@ -35,9 +43,17 @@ target_include_directories(uWS
     "${CMAKE_CURRENT_SOURCE_DIR}/uWS"
 )
 
+target_link_libraries(uWS
+  PUBLIC
+    Threads::Threads
+    OpenSSL::SSL
+    OpenSSL::Crypto
+    ZLIB::ZLIB
+)
+
 set_target_properties(uWS
   PROPERTIES
-    CXX_STANDARD 17
+    CXX_STANDARD 11
     POSITION_INDEPENDENT_CODE ON
     PUBLIC_HEADER "${HEADERS}"
 )
@@ -48,3 +64,7 @@ install(
   ARCHIVE DESTINATION lib
   PUBLIC_HEADER DESTINATION include/uWS
 )
+
+# Tests
+add_executable(uWS_test tests/main.cpp)
+target_link_libraries(uWS_test uWS)
