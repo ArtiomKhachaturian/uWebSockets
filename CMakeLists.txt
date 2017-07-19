@@ -66,6 +66,7 @@ target_link_libraries(uWS
     OpenSSL::Crypto
     ZLIB::ZLIB
 )
+
 target_compile_features(uWS
   PUBLIC
     cxx_std_11
