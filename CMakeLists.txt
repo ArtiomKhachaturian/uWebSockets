@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/misc/cmake;${CMAKE_MODULE_PATH}")
 project(uWebSockets)
+
+set(UWS_BACKEND "" CACHE STRING "Backend to use. Can be ASIO, EPOLL, LIBUV")
 
 enable_testing()
 
@@ -43,6 +46,19 @@ target_include_directories(uWS
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
+if(${UWS_BACKEND} MATCHES "ASIO")
+  find_package(Boost REQUIRED COMPONENTS system)
+  target_compile_definitions(uWS PUBLIC USE_ASIO)
+  target_link_libraries(uWS PUBLIC Boost::boost Boost::system)
+elseif(${UWS_BACKEND} MATCHES "LIBUV")
+  find_package(LibUV REQUIRED)
+  target_compile_definitions(uWS PUBLIC USE_LIBUV)
+  target_include_directories(uWS PUBLIC "${LIBUV_INCLUDE_DIRS}")
+  target_link_libraries(uWS PUBLIC "${LIBUV_LIBRARIES}")
+elseif(${UWS_BACKEND} MATCHES "EPOLL")
+  target_compile_definitions(uWS PUBLIC USE_EPOLL)
+endif()
+
 target_link_libraries(uWS
   PUBLIC
     Threads::Threads
@@ -50,10 +66,13 @@ target_link_libraries(uWS
     OpenSSL::Crypto
     ZLIB::ZLIB
 )
+target_compile_features(uWS
+  PUBLIC
+    cxx_std_11
+)
 
 set_target_properties(uWS
   PROPERTIES
-    CXX_STANDARD 11
     POSITION_INDEPENDENT_CODE ON
     PUBLIC_HEADER "${HEADERS}"
 )
