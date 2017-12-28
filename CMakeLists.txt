@@ -12,7 +12,7 @@ find_package(ZLIB REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 # Define the uWS target
-add_library(uWS
+add_library(uWS SHARED
   src/Extensions.cpp
   src/Group.cpp
   src/Networking.cpp
@@ -23,6 +23,9 @@ add_library(uWS
   src/Socket.cpp
   src/Epoll.cpp
 )
+
+add_definitions(-DSHARE_UWS)
+set_target_properties(uWS PROPERTIES DEBUG_POSTFIX "_d")
 
 set(HEADERS
   src/Asio.h
@@ -82,10 +85,11 @@ install(
   TARGETS uWS
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION lib
   PUBLIC_HEADER DESTINATION include/uWS
 )
 
 # Tests
-add_executable(uWS_test tests/main.cpp)
-target_link_libraries(uWS_test PRIVATE uWS)
-target_include_directories(uWS_test PRIVATE src)
+#add_executable(uWS_test tests/main.cpp)
+#target_link_libraries(uWS_test PRIVATE uWS)
+#target_include_directories(uWS_test PRIVATE src)

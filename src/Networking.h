@@ -4,6 +4,15 @@
 #ifndef NETWORKING_UWS_H
 #define NETWORKING_UWS_H
 
+#ifdef WIN32
+#define UWS_DECL_EXPORT __declspec(dllexport)
+#define UWS_DECL_IMPORT __declspec(dllimport)
+#elif defined(__APPLE__)
+#define UWS_DECL_EXPORT __attribute__((visibility("default")))
+#define UWS_DECL_IMPORT __attribute__((visibility("hidden")))
+#endif
+
+
 #include <openssl/opensslv.h>
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 #define SSL_CTX_up_ref(x) x->references++
@@ -39,7 +48,10 @@
 #define pthread_t DWORD
 #define pthread_self GetCurrentThreadId
 #endif
-#define WIN32_EXPORT __declspec(dllexport)
+// disable warnings on 255 char debug symbols
+#pragma warning(disable : 4786)
+// disable warnings on extern before template instantiation
+#pragma warning(disable : 4231)
 
 inline void close(SOCKET fd) {closesocket(fd);}
 inline int setsockopt(SOCKET fd, int level, int optname, const void *optval, socklen_t optlen) {
@@ -64,7 +76,14 @@ inline SOCKET dup(SOCKET socket) {
 #define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
 #define WIN32_EXPORT
+#endif//_WIN32
+
+#ifdef SHARE_UWS
+#define WIN32_EXPORT UWS_DECL_EXPORT
+#else
+#define WIN32_EXPORT UWS_DECL_IMPORT
 #endif
+
 
 #include "Backend.h"
 #include <openssl/ssl.h>
